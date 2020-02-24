@@ -6,7 +6,7 @@
 # VM configuration
 #
 ###
-$nodes_count = 2
+$nodes_count = 1
 $vm_memory = 2000
 $vm_cpus = 2
 $instance_name_prefix = "v"
@@ -26,10 +26,10 @@ Vagrant.configure("2") do |config|
         config.vm.define vm_name = "%s-%02d" % [$instance_name_prefix, i] do |node|
             node.vm.hostname = "%s-%02d" % [$instance_name_prefix, i]
 
-            node.vm.provider :libevrt do |l|
+            node.vm.provider :libvirt do |l|
                 l.memory = $vm_memory
                 l.cpus = $vm_cpus
-		l.nested = true
+		        l.nested = true
             end
 
             if i == 0 #1 isMaster
@@ -38,7 +38,7 @@ Vagrant.configure("2") do |config|
             else
                 ip = "172.100.100.#{i+20}"
                 node.vm.network :private_network, ip: ip, libvirt__guest_ipv6: "no"
-                    node.vm.provision "shell", path: "init_node.sh", env: {:MASTER_IP => $master_ip, :KUBERNETES_TOKEN => $kubernetes_token}
+                node.vm.provision "shell", path: "init_node.sh", env: {:MASTER_IP => $master_ip, :KUBERNETES_TOKEN => $kubernetes_token}
             end
         end
     end

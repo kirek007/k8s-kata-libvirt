@@ -22,21 +22,15 @@ EOF
 
 sysctl -p
 
-# Install OCR
 
 KUBERNETES_VERSION=1.17
-KATA_VERSION=1.10
-KATA_BRANCH="stable-${KATA_VERSION}"
 
-# Install kata
+# Install kata and firecracker
 
-ARCH=$(arch)
-BRANCH="${KATA_BRANCH:-master}"
-sudo sh -c "echo 'deb http://download.opensuse.org/repositories/home:/katacontainers:/releases:/${ARCH}:/${BRANCH}/xUbuntu_$(lsb_release -rs)/ /' > /etc/apt/sources.list.d/kata-containers.list"
-curl -sL  http://download.opensuse.org/repositories/home:/katacontainers:/releases:/${ARCH}:/${BRANCH}/xUbuntu_$(lsb_release -rs)/Release.key | sudo apt-key add -
-sudo -E apt-get update
-sudo -E apt-get -y -qq install kata-runtime kata-proxy kata-shim
-
+wget -q https://github.com/kata-containers/runtime/releases/download/1.10.0/kata-static-1.10.0-x86_64.tar.xz
+tar -xf kata-static-1.10.0-x86_64.tar.xz
+sudo cp -r opt /
+rm -rf opt kata
 
 apt-get update && apt-get install -y apt-transport-https curl
 curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
@@ -44,6 +38,8 @@ add-apt-repository "deb https://apt.kubernetes.io/ kubernetes-xenial main"
 apt-get update
 apt-get install -y  kubelet kubeadm kubectl
 apt-mark hold kubelet kubeadm kubectl
+
+# Install OCR
 
 # Ubuntu (18.04, 19.04 and 19.10)
 . /etc/os-release
@@ -55,13 +51,13 @@ sudo apt-get install -y -qq runc cri-o-$KUBERNETES_VERSION
 
 cat >> /etc/crio/crio.conf << EOF
 [crio.runtime.runtimes.kata-runtime]
-runtime_path = "/usr/bin/kata-runtime"
+runtime_path = "/opt/kata/bin/kata-runtime"
 runtime_type = "oci"
 [crio.runtime.runtimes.kata-qemu]
-runtime_path = "/usr/bin/kata-runtime"
+runtime_path = "/opt/kata/bin/kata-qemu"
 runtime_type = "oci"
 [crio.runtime.runtimes.kata-fc]
-runtime_path = "/usr/bin/kata-runtime"
+runtime_path = "/opt/kata/bin/kata-fc"
 runtime_type = "oci"
 EOF
 

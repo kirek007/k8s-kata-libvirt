@@ -39,6 +39,18 @@ cat <<EOF | kubectl apply -f -
 apiVersion: node.k8s.io/v1beta1
 kind: RuntimeClass
 metadata:
+  name: kata-qemu
+handler: kata-qemu
+---
+apiVersion: node.k8s.io/v1beta1
+kind: RuntimeClass
+metadata:
+  name: kata-fc
+handler: kata-fc
+---
+apiVersion: node.k8s.io/v1beta1
+kind: RuntimeClass
+metadata:
   name: kata-runtime
 handler: kata-runtime
 ---
@@ -50,7 +62,7 @@ metadata:
     app: kata-nginx
   name: kata-nginx
 spec:
-  replicas: 5
+  replicas: 1
   selector:
     matchLabels:
       app: kata-nginx
