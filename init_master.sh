@@ -6,7 +6,6 @@ kubeadm init --apiserver-advertise-address="${MASTER_IP}" --apiserver-cert-extra
 
 export KUBECONFIG=/etc/kubernetes/admin.conf
 
-
 #systemctl restart kubelet
 kubectl taint nodes --all node-role.kubernetes.io/master-
 
@@ -17,16 +16,11 @@ sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 sudo chown "$(id vagrant -u)":"$(id vagrant -g)" $HOME/.kube/config
 sudo cp $HOME/.kube/config /vagrant
 
-#Wait for kubernetes to be Ready
-echo "Waiting for kubernetes to become Ready"
-until [ $(kubectl get po --field-selector status.phase!=Running -A 2>/dev/null | wc -l) -gt 0 ]; do
-  echo -n "."
-  sleep 5
-done
+sleep 5
 
-kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
-kubectl set env daemonset/calico-node -n kube-system "IP_AUTODETECTION_METHOD=interface=eth1"
-kubectl set env daemonset/calico-node -n kube-system "CALICO_IPV4POOL_CIDR=${POD_NETWORK}"
+curl https://docs.projectcalico.org/v3.9/manifests/calico.yaml -O
+sed -i -e "s?192.168.0.0/16?${POD_NETWORK}?g" calico.yaml
+kubectl apply -f calico.yaml
 
 echo "Waiting for network to become Ready"
 until [ $(kubectl get po --field-selector status.phase!=Running -A 2>/dev/null | wc -l) -gt 0 ]; do

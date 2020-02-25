@@ -61,28 +61,10 @@ runtime_path = "/opt/kata/bin/kata-fc"
 runtime_type = "oci"
 EOF
 
-cat > /etc/cni/net.d/100-crio-bridge.conf << EOF
-{
-    "cniVersion": "0.3.1",
-    "name": "crio-bridge",
-    "type": "bridge",
-    "bridge": "cni0",
-    "isGateway": true,
-    "ipMasq": true,
-    "hairpinMode": true,
-    "ipam": {
-        "type": "host-local",
-        "routes": [
-            { "dst": "0.0.0.0/0" }
-        ],
-        "ranges": [
-            [{ "subnet": "10.88.0.0/16" }]
-        ]
-    }
-}
-EOF
+rm -rf /etc/cni/net.d/200-loopback.conf
+rm -rf /etc/cni/net.d/100-crio-bridge.conf
 
-#sed -i "s/manage_ns_lifecycle = false/manage_ns_lifecycle = true/g" /etc/crio/crio.conf
+sed -i "s/manage_ns_lifecycle = false/manage_ns_lifecycle = true/g" /etc/crio/crio.conf
 
 sudo systemctl daemon-reload
 sudo systemctl enable crio

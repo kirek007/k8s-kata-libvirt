@@ -6,7 +6,7 @@
 # VM configuration
 #
 ###
-$nodes_count = 1
+$nodes_count = 2
 $vm_memory = 2000
 $vm_cpus = 2
 $instance_name_prefix = "v"
@@ -16,7 +16,6 @@ $master_ip = "172.100.100.10"
 $kubernetes_token = "wl6ndy.vyaag8hxsnfikwyb"
 
 Vagrant.configure("2") do |config|
-    config.vagrant.plugins = "vagrant-scp"
     config.vm.box = "generic/ubuntu1804"
     config.vm.box_check_update = false
 
